@@ -63,7 +63,7 @@ Después, acceder a `http://localhost:8000`.
 
 ## Base de datos
 
-El archivo `database/schema.sql` contiene el modelo relacional completo de SIGGAF. Los módulos de esta entrega utilizan principalmente:
+El archivo `database/schema.sql` contiene solamente el modelo relacional necesario para los módulos programados en esta primera entrega:
 
 - `estado_usuario`
 - `persona`
@@ -74,6 +74,8 @@ El archivo `database/schema.sql` contiene el modelo relacional completo de SIGGA
 - `establecimiento`
 - `potrero`
 - `recurso_potrero`
+
+Las entidades de animales, movimientos, sanidad, reproducción, costos, compras, ventas, documentación y auditoría se incorporarán en entregas posteriores, cuando sus respectivos módulos sean programados. De esta manera, la base ejecutable no contiene tablas todavía ajenas al alcance desarrollado.
 
 El script `database/seed.php` carga los permisos de potreros, los asigna a los roles, crea el establecimiento La Celina y registra el usuario inicial indicado en `.env`. Puede ejecutarse nuevamente sin duplicar esos datos.
 
@@ -110,4 +112,3 @@ El script `database/seed.php` carga los permisos de potreros, los asigna a los r
 - `resources/views`: plantillas de interfaz.
 - `public`: punto de entrada y recursos públicos.
 - `database`: esquema y datos iniciales.
-
