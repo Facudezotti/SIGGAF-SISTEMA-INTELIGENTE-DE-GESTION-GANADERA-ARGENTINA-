@@ -1,12 +1,12 @@
 -- ============================================================================
 -- SIGGAF - BASE DE DATOS DE LA PRIMERA ENTREGA
 -- Modulos implementados: acceso y gestion de potreros
--- Motor: MySQL 8.0 | InnoDB | utf8mb4
+-- Motor: MySQL 8.0 o MariaDB | InnoDB | utf8mb4
 -- ============================================================================
 
 CREATE DATABASE IF NOT EXISTS gestion_ganadera
     CHARACTER SET utf8mb4
-    COLLATE utf8mb4_0900_ai_ci;
+    COLLATE utf8mb4_unicode_ci;
 
 USE gestion_ganadera;
 
@@ -140,4 +140,3 @@ INSERT INTO estado_usuario (codigo, descripcion) VALUES
 INSERT INTO rol (nombre, descripcion) VALUES
     ('DUENO', 'Rol con permisos de administracion y control general'),
     ('PEON', 'Rol operativo sujeto a los permisos asignados');
-

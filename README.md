@@ -19,7 +19,7 @@ La recuperación de contraseña y la visualización de potreros en un mapa queda
 ## Requisitos
 
 - PHP 8.1 o posterior.
-- MySQL 8.0 o posterior.
+- MySQL 8.0 o MariaDB incluida en XAMPP.
 - Apache con `mod_rewrite` habilitado, o el servidor integrado de PHP.
 - Extensiones PHP `pdo_mysql` y `mbstring`.
 
