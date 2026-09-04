@@ -90,6 +90,20 @@ final class PotreroController
         redirect('/potreros/' . (int) $id);
     }
 
+    public function eliminar(string $id): void
+    {
+        $this->validarCsrf();
+        $this->obtenerPotrero($id);
+        try {
+            $this->repository->eliminar((int) $id);
+            Session::flash('mensaje', 'Potrero eliminado correctamente.');
+            redirect('/potreros');
+        } catch (\PDOException) {
+            Session::flash('error', 'No puede eliminarse un potrero que todavía contiene recursos.');
+            redirect('/potreros/' . (int) $id);
+        }
+    }
+
     public function agregarRecurso(string $id): void
     {
         $this->validarCsrf();
@@ -122,6 +136,34 @@ final class PotreroController
         redirect('/potreros/' . (int) $id);
     }
 
+    public function actualizarRecurso(string $id, string $recurso): void
+    {
+        $this->validarCsrf();
+        $this->obtenerPotrero($id);
+        $nombre = trim((string) ($_POST['nombre'] ?? ''));
+        $observacion = trim((string) ($_POST['observacion'] ?? ''));
+        if ($nombre === '' || mb_strlen($nombre) > 120) {
+            Session::flash('error', 'El nombre del recurso es obligatorio y admite hasta 120 caracteres.');
+            redirect('/potreros/' . (int) $id);
+        }
+        try {
+            $this->repository->actualizarRecurso((int) $id, (int) $recurso, $nombre, isset($_POST['disponible']), $observacion ?: null);
+            Session::flash('mensaje', 'Recurso actualizado correctamente.');
+        } catch (\PDOException) {
+            Session::flash('error', 'No se pudo actualizar el recurso. Verifica que su nombre no esté repetido.');
+        }
+        redirect('/potreros/' . (int) $id);
+    }
+
+    public function eliminarRecurso(string $id, string $recurso): void
+    {
+        $this->validarCsrf();
+        $this->obtenerPotrero($id);
+        if ($this->repository->eliminarRecurso((int) $id, (int) $recurso)) Session::flash('mensaje', 'Recurso eliminado correctamente.');
+        else Session::flash('error', 'El recurso indicado no existe.');
+        redirect('/potreros/' . (int) $id);
+    }
+
     private function obtenerPotrero(string $id): array
     {
         if (!ctype_digit($id) || (int) $id < 1) {
@@ -146,4 +188,3 @@ final class PotreroController
         }
     }
 }
-

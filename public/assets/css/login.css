@@ -29,8 +29,13 @@
 .password-toggle { border: 0; background: transparent; color: #f0dec0; cursor: pointer; font-size: .84rem; }
 .login-button { min-height: 62px; margin-top: 6px; border: 0; border-radius: 11px; background: linear-gradient(100deg, #d5b585, #efd3a6); color: #1d241c; font-weight: 800; font-size: 1.06rem; cursor: pointer; }
 .login-button:hover { filter: brightness(1.05); }
-.forgot-button { margin-top: 24px; border: 0; background: transparent; color: #dbc49c; cursor: pointer; font-size: .96rem; }
+.forgot-button { display: inline-block; margin-top: 24px; border: 0; background: transparent; color: #dbc49c; cursor: pointer; font-size: .96rem; }
 .future-message { margin: 12px 0 0; color: #ead9bb; font-size: .85rem; }
+.compact-title { font-size: clamp(2rem, 6vw, 3rem) !important; text-transform: none !important; margin: 12px 0 24px !important; }
+.recovery-card { width: min(620px, 94vw); }
+.recovery-help { color: #dfd3bc; margin: -12px 0 20px; }
+.recovery-field { display: grid; gap: 8px; text-align: left; color: #f1e6d0; font-weight: 700; }
+.recovery-field input { width: 100%; padding: 13px; border: 1px solid rgba(239,226,198,.58); border-radius: 9px; color: #fff; background: rgba(19,24,15,.28); outline: none; }
 .login-error { padding: 11px 14px; margin: 0 0 16px; border: 1px solid rgba(255, 166, 166, .55); border-radius: 9px; color: #ffe1e1; background: rgba(126, 27, 27, .36); }
+.login-success { padding: 11px 14px; margin: 0 0 16px; border: 1px solid rgba(177,230,183,.55); border-radius: 9px; color: #e5ffe8; background: rgba(30,100,43,.42); }
 @media (max-width: 580px) { .login-card { padding: 34px 24px 28px; } .cattle-mark { font-size: 3.8rem; } }
-

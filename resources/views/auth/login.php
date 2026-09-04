@@ -8,6 +8,7 @@
         <?php if (!empty($error)): ?>
             <div class="login-error" role="alert"><?= e($error) ?></div>
         <?php endif; ?>
+        <?php if (!empty($mensaje)): ?><div class="login-success" role="status"><?= e($mensaje) ?></div><?php endif; ?>
 
         <form action="<?= e(url('/login')) ?>" method="post" class="login-form">
             <?= csrf_field() ?>
@@ -27,8 +28,6 @@
             <button class="login-button" type="submit">Ingresar</button>
         </form>
 
-        <button id="recuperacion-pendiente" class="forgot-button" type="button">¿Olvidaste tu contraseña?</button>
-        <p id="mensaje-recuperacion" class="future-message" hidden>La recuperación estará disponible en una próxima entrega.</p>
+        <a class="forgot-button" href="<?= e(url('/recuperar')) ?>">¿Olvidaste tu contraseña?</a>
     </section>
 </main>
-

@@ -67,6 +67,12 @@ final class PotreroRepository
         $statement->execute($datos);
     }
 
+    public function eliminar(int $id): void
+    {
+        $statement = Database::connection()->prepare('DELETE FROM potrero WHERE id_potrero = :id');
+        $statement->execute(['id' => $id]);
+    }
+
     public function recursos(int $potreroId): array
     {
         $statement = Database::connection()->prepare('SELECT * FROM recurso_potrero WHERE id_potrero = :id ORDER BY nombre');
@@ -91,6 +97,28 @@ final class PotreroRepository
         $statement = Database::connection()->prepare(
             'UPDATE recurso_potrero SET disponible = NOT disponible WHERE id_recurso_potrero = :recurso AND id_potrero = :potrero'
         );
+        $statement->execute(['recurso' => $recursoId, 'potrero' => $potreroId]);
+        return $statement->rowCount() === 1;
+    }
+
+    public function actualizarRecurso(int $potreroId, int $recursoId, string $nombre, bool $disponible, ?string $observacion): bool
+    {
+        $statement = Database::connection()->prepare(<<<'SQL'
+            UPDATE recurso_potrero SET nombre = :nombre, disponible = :disponible, observacion = :observacion
+            WHERE id_recurso_potrero = :recurso AND id_potrero = :potrero
+        SQL);
+        $statement->bindValue(':nombre', $nombre);
+        $statement->bindValue(':disponible', $disponible, PDO::PARAM_BOOL);
+        $statement->bindValue(':observacion', $observacion);
+        $statement->bindValue(':recurso', $recursoId, PDO::PARAM_INT);
+        $statement->bindValue(':potrero', $potreroId, PDO::PARAM_INT);
+        $statement->execute();
+        return $statement->rowCount() <= 1;
+    }
+
+    public function eliminarRecurso(int $potreroId, int $recursoId): bool
+    {
+        $statement = Database::connection()->prepare('DELETE FROM recurso_potrero WHERE id_recurso_potrero = :recurso AND id_potrero = :potrero');
         $statement->execute(['recurso' => $recursoId, 'potrero' => $potreroId]);
         return $statement->rowCount() === 1;
     }

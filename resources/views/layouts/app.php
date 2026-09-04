@@ -20,6 +20,8 @@ $usuarioActual = Auth::user();
     <nav class="navigation" aria-label="Navegación principal">
         <a href="<?= e(url('/dashboard')) ?>">Inicio</a>
         <?php if (Auth::can('POTRERO_CONSULTAR')): ?><a href="<?= e(url('/potreros')) ?>">Potreros</a><?php endif; ?>
+        <?php if (($usuarioActual['rol'] ?? '') === 'DUENO' && Auth::can('USUARIO_GESTIONAR')): ?><a href="<?= e(url('/usuarios')) ?>">Usuarios</a><?php endif; ?>
+        <?php if (($usuarioActual['rol'] ?? '') === 'DUENO' && Auth::can('ROL_GESTIONAR')): ?><a href="<?= e(url('/administracion')) ?>">Administración</a><?php endif; ?>
     </nav>
     <div class="user-area">
         <span><?= e($usuarioActual['nombre_completo'] ?? '') ?> · <?= e($usuarioActual['rol'] ?? '') ?></span>

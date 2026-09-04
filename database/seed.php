@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Core\Database;
 use App\Core\Env;
+use App\Services\RespuestaSeguridadService;
 
 require dirname(__DIR__) . '/bootstrap.php';
 
@@ -16,9 +17,19 @@ $usuario = trim((string) Env::get('SEED_ADMIN_USERNAME', 'admin'));
 $contrasena = (string) Env::get('SEED_ADMIN_PASSWORD', '');
 $nombre = trim((string) Env::get('SEED_ADMIN_NAME', 'Administrador'));
 $apellido = trim((string) Env::get('SEED_ADMIN_LASTNAME', 'SIGGAF'));
+$respuestasSeguridad = [
+    (string) Env::get('SEED_SECURITY_ANSWER_1', ''),
+    (string) Env::get('SEED_SECURITY_ANSWER_2', ''),
+    (string) Env::get('SEED_SECURITY_ANSWER_3', ''),
+];
 
 if ($contrasena === '' || strlen($contrasena) < 8) {
     fwrite(STDERR, "Configura SEED_ADMIN_PASSWORD en .env con al menos 8 caracteres.\n");
+    exit(1);
+}
+
+if (count(array_filter(array_map('trim', $respuestasSeguridad))) !== 3) {
+    fwrite(STDERR, "Configura las tres respuestas SEED_SECURITY_ANSWER_1, 2 y 3 en .env.\n");
     exit(1);
 }
 
@@ -31,7 +42,13 @@ try {
         'POTRERO_CONSULTAR' => 'Consultar el listado y detalle de potreros',
         'POTRERO_CREAR' => 'Registrar nuevos potreros',
         'POTRERO_EDITAR' => 'Modificar los datos de potreros',
+        'POTRERO_ELIMINAR' => 'Eliminar potreros sin relaciones',
         'POTRERO_RECURSOS' => 'Registrar y actualizar recursos del potrero',
+        'USUARIO_GESTIONAR' => 'Administrar usuarios',
+        'ROL_GESTIONAR' => 'Administrar roles',
+        'PERMISO_GESTIONAR' => 'Administrar permisos',
+        'ESTABLECIMIENTO_GESTIONAR' => 'Administrar establecimientos',
+        'PREGUNTA_SEGURIDAD_GESTIONAR' => 'Administrar preguntas de seguridad',
     ];
 
     $insertarPermiso = $pdo->prepare(
@@ -46,7 +63,7 @@ try {
         SELECT r.id_rol, p.id_permiso
         FROM rol r
         CROSS JOIN permiso p
-        WHERE r.nombre = 'DUENO' AND p.nombre LIKE 'POTRERO_%'
+        WHERE r.nombre = 'DUENO'
     SQL);
     $pdo->exec(<<<'SQL'
         INSERT IGNORE INTO rol_permiso (id_rol, id_permiso)
@@ -59,7 +76,8 @@ try {
     $statement = $pdo->prepare('SELECT id_usuario FROM usuario WHERE nombre_usuario = :usuario');
     $statement->execute(['usuario' => $usuario]);
 
-    if ($statement->fetchColumn() === false) {
+    $idUsuario = $statement->fetchColumn();
+    if ($idUsuario === false) {
         $persona = $pdo->prepare('INSERT INTO persona (nombre, apellido) VALUES (:nombre, :apellido)');
         $persona->execute(['nombre' => $nombre, 'apellido' => $apellido]);
         $idPersona = (int) $pdo->lastInsertId();
@@ -75,6 +93,22 @@ try {
             'id_persona' => $idPersona,
             'usuario' => $usuario,
             'hash' => password_hash($contrasena, PASSWORD_DEFAULT),
+        ]);
+        $idUsuario = (int) $pdo->lastInsertId();
+    }
+
+    $preguntas = $pdo->query('SELECT id_pregunta_seguridad FROM pregunta_seguridad WHERE activa = TRUE ORDER BY id_pregunta_seguridad LIMIT 3')->fetchAll();
+    if (count($preguntas) !== 3) {
+        throw new RuntimeException('Deben existir al menos tres preguntas de seguridad activas.');
+    }
+    $eliminarRespuestas = $pdo->prepare('DELETE FROM respuesta_seguridad_usuario WHERE id_usuario = :id');
+    $eliminarRespuestas->execute(['id' => (int) $idUsuario]);
+    $insertarRespuesta = $pdo->prepare('INSERT INTO respuesta_seguridad_usuario (id_usuario, id_pregunta_seguridad, hash_respuesta) VALUES (:usuario, :pregunta, :respuesta)');
+    foreach ($preguntas as $indice => $pregunta) {
+        $insertarRespuesta->execute([
+            'usuario' => (int) $idUsuario,
+            'pregunta' => (int) $pregunta['id_pregunta_seguridad'],
+            'respuesta' => password_hash(RespuestaSeguridadService::normalizar($respuestasSeguridad[$indice]), PASSWORD_DEFAULT),
         ]);
     }
 
@@ -96,4 +130,3 @@ try {
     fwrite(STDERR, "No se pudieron cargar los datos iniciales: {$exception->getMessage()}\n");
     exit(1);
 }
-

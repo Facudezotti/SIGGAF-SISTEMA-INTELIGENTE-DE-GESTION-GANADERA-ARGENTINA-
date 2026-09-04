@@ -1,5 +1,5 @@
 /.env
+/.env.example
 /storage/logs/*.log
 /.idea/
 /.vscode/
-

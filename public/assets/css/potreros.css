@@ -24,10 +24,28 @@ tbody tr:hover { background: #f8faf7; }
 .resource-item { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px; border: 1px solid #e1e7e1; border-radius: 10px; }
 .resource-item h3 { margin: 0 0 4px; }
 .resource-item p { margin: 0; color: var(--muted); }
+.resource-form { width: 100%; display: grid; grid-template-columns: .8fr 1.3fr auto auto auto; align-items: center; gap: 9px; }
+.resource-form input[type="text"], .resource-form input:not([type]) { min-width: 0; padding: 9px; border: 1px solid #bdc8bd; border-radius: 7px; }
 .status { min-width: 112px; padding: 8px 11px; border: 1px solid; border-radius: 999px; cursor: pointer; font-size: .78rem; font-weight: 800; }
 .available { border-color: #a7d2ae; color: #245b30; background: #e8f5ea; }
 .unavailable { border-color: #dcb1b1; color: #842e2e; background: #fff0f0; }
 .checkbox-field { display: flex; align-items: center; gap: 10px; margin: 18px 0; color: var(--green-900); }
+.checkbox-field small { display: block; color: var(--muted); margin-top: 3px; }
+.permission-fieldset { border: 1px solid #dce5dc; border-radius: 10px; padding: 18px; }
+.permission-fieldset legend { padding: 0 8px; color: var(--green-900); font-weight: 800; }
+.check-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 4px 18px; }
+.security-row { display: grid; grid-template-columns: 1.2fr .8fr; gap: 12px; margin-top: 12px; }
+.security-row select, .security-row input { padding: 11px 12px; border: 1px solid #bdc8bd; border-radius: 8px; }
+.table-actions form { margin: 0; }
+.link-danger { border: 0; padding: 0; color: var(--danger); background: transparent; text-decoration: underline; cursor: pointer; }
+.admin-section { margin-bottom: 24px; }
+.inline-create { display: grid; grid-template-columns: 1fr 1.5fr auto; gap: 10px; margin-bottom: 18px; }
+.inline-create input, .admin-fields input { width: 100%; padding: 11px 12px; border: 1px solid #bdc8bd; border-radius: 8px; }
+.admin-cards { display: grid; gap: 12px; }
+.two-card-columns { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.admin-card { padding: 15px; border: 1px solid #e0e7e0; border-radius: 10px; background: #fbfcfa; }
+.admin-fields { display: grid; grid-template-columns: .8fr 1.5fr; gap: 10px; }
+.compact-checks { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; margin: 14px 0; font-size: .8rem; color: var(--muted); }
+.admin-actions { display: flex; align-items: center; justify-content: flex-end; gap: 14px; margin-top: 12px; }
 @media (max-width: 820px) { .two-columns { grid-template-columns: 1fr; } }
-@media (max-width: 620px) { .form-grid, .metric-grid { grid-template-columns: 1fr; } .field-wide { grid-column: auto; } .surface-preview { align-items: flex-start; flex-direction: column; gap: 7px; } }
-
+@media (max-width: 620px) { .form-grid, .metric-grid, .check-grid, .security-row, .inline-create, .two-card-columns, .admin-fields, .compact-checks, .resource-form { grid-template-columns: 1fr; } .field-wide { grid-column: auto; } .surface-preview { align-items: flex-start; flex-direction: column; gap: 7px; } }

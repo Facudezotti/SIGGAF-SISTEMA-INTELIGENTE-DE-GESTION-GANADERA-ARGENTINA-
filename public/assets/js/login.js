@@ -8,8 +8,3 @@ toggle?.addEventListener('click', () => {
     toggle.setAttribute('aria-label', showing ? 'Mostrar contraseña' : 'Ocultar contraseña');
 });
 
-document.querySelector('#recuperacion-pendiente')?.addEventListener('click', () => {
-    const message = document.querySelector('#mensaje-recuperacion');
-    message.hidden = !message.hidden;
-});
-

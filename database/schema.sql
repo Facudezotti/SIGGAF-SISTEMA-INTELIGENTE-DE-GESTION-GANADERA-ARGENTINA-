@@ -51,16 +51,24 @@ CREATE TABLE permiso (
     CONSTRAINT uq_permiso_nombre UNIQUE (nombre)
 ) ENGINE = InnoDB;
 
+CREATE TABLE pregunta_seguridad (
+    id_pregunta_seguridad SMALLINT UNSIGNED AUTO_INCREMENT,
+    texto VARCHAR(200) NOT NULL,
+    activa BOOLEAN NOT NULL DEFAULT TRUE,
+    CONSTRAINT pk_pregunta_seguridad PRIMARY KEY (id_pregunta_seguridad),
+    CONSTRAINT uq_pregunta_seguridad_texto UNIQUE (texto)
+) ENGINE = InnoDB;
+
 CREATE TABLE rol_permiso (
     id_rol SMALLINT UNSIGNED NOT NULL,
     id_permiso SMALLINT UNSIGNED NOT NULL,
     CONSTRAINT pk_rol_permiso PRIMARY KEY (id_rol, id_permiso),
     CONSTRAINT fk_rol_permiso_rol
         FOREIGN KEY (id_rol) REFERENCES rol (id_rol)
-        ON UPDATE CASCADE ON DELETE CASCADE,
+        ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_rol_permiso_permiso
         FOREIGN KEY (id_permiso) REFERENCES permiso (id_permiso)
-        ON UPDATE CASCADE ON DELETE CASCADE
+        ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE = InnoDB;
 
 CREATE TABLE usuario (
@@ -81,6 +89,35 @@ CREATE TABLE usuario (
         ON UPDATE CASCADE ON DELETE RESTRICT,
     CONSTRAINT fk_usuario_estado
         FOREIGN KEY (id_estado_usuario) REFERENCES estado_usuario (id_estado_usuario)
+        ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE = InnoDB;
+
+CREATE TABLE usuario_permiso (
+    id_usuario BIGINT UNSIGNED NOT NULL,
+    id_permiso SMALLINT UNSIGNED NOT NULL,
+    CONSTRAINT pk_usuario_permiso PRIMARY KEY (id_usuario, id_permiso),
+    CONSTRAINT fk_usuario_permiso_usuario
+        FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_usuario_permiso_permiso
+        FOREIGN KEY (id_permiso) REFERENCES permiso (id_permiso)
+        ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE = InnoDB;
+
+CREATE TABLE respuesta_seguridad_usuario (
+    id_usuario BIGINT UNSIGNED NOT NULL,
+    id_pregunta_seguridad SMALLINT UNSIGNED NOT NULL,
+    hash_respuesta VARCHAR(255) NOT NULL,
+    fecha_actualizacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT pk_respuesta_seguridad_usuario
+        PRIMARY KEY (id_usuario, id_pregunta_seguridad),
+    CONSTRAINT fk_respuesta_seguridad_usuario
+        FOREIGN KEY (id_usuario) REFERENCES usuario (id_usuario)
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_respuesta_seguridad_pregunta
+        FOREIGN KEY (id_pregunta_seguridad)
+        REFERENCES pregunta_seguridad (id_pregunta_seguridad)
         ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE = InnoDB;
 
@@ -125,7 +162,7 @@ CREATE TABLE recurso_potrero (
     CONSTRAINT uq_recurso_potrero_nombre UNIQUE (id_potrero, nombre),
     CONSTRAINT fk_recurso_potrero_potrero
         FOREIGN KEY (id_potrero) REFERENCES potrero (id_potrero)
-        ON UPDATE CASCADE ON DELETE CASCADE
+        ON UPDATE CASCADE ON DELETE RESTRICT
 ) ENGINE = InnoDB;
 
 -- ============================================================================
@@ -140,3 +177,35 @@ INSERT INTO estado_usuario (codigo, descripcion) VALUES
 INSERT INTO rol (nombre, descripcion) VALUES
     ('DUENO', 'Rol con permisos de administracion y control general'),
     ('PEON', 'Rol operativo sujeto a los permisos asignados');
+
+INSERT INTO permiso (nombre, descripcion) VALUES
+    ('POTRERO_CONSULTAR', 'Consultar el listado y detalle de potreros'),
+    ('POTRERO_CREAR', 'Registrar nuevos potreros'),
+    ('POTRERO_EDITAR', 'Modificar los datos de potreros'),
+    ('POTRERO_ELIMINAR', 'Eliminar potreros que no posean relaciones'),
+    ('POTRERO_RECURSOS', 'Administrar recursos de los potreros'),
+    ('USUARIO_GESTIONAR', 'Crear, consultar, modificar y desactivar usuarios'),
+    ('ROL_GESTIONAR', 'Administrar roles y sus permisos'),
+    ('PERMISO_GESTIONAR', 'Administrar el catalogo de permisos'),
+    ('ESTABLECIMIENTO_GESTIONAR', 'Administrar establecimientos'),
+    ('PREGUNTA_SEGURIDAD_GESTIONAR', 'Administrar preguntas de seguridad');
+
+INSERT INTO pregunta_seguridad (texto, activa) VALUES
+    ('¿Cuál fue el nombre de tu primera mascota?', TRUE),
+    ('¿En qué ciudad naciste?', TRUE),
+    ('¿Cuál era tu apodo durante la infancia?', TRUE),
+    ('¿Cuál es el segundo nombre de tu madre?', TRUE),
+    ('¿Cuál fue el nombre de tu primera escuela?', TRUE);
+
+INSERT INTO rol_permiso (id_rol, id_permiso)
+SELECT r.id_rol, p.id_permiso
+FROM rol r
+CROSS JOIN permiso p
+WHERE r.nombre = 'DUENO';
+
+INSERT INTO rol_permiso (id_rol, id_permiso)
+SELECT r.id_rol, p.id_permiso
+FROM rol r
+CROSS JOIN permiso p
+WHERE r.nombre = 'PEON'
+  AND p.nombre = 'POTRERO_CONSULTAR';

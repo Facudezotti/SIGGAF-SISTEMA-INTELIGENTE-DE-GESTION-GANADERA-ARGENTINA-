@@ -27,17 +27,10 @@
         <?php else: ?>
             <div class="resource-list">
                 <?php foreach ($recursos as $recurso): ?>
-                    <article class="resource-item">
-                        <div>
-                            <h3><?= e($recurso['nombre']) ?></h3>
-                            <p><?= e($recurso['observacion'] ?: 'Sin observaciones') ?></p>
-                        </div>
-                        <?php if (\App\Core\Auth::can('POTRERO_RECURSOS')): ?><form action="<?= e(url('/potreros/' . $potrero['id_potrero'] . '/recursos/' . $recurso['id_recurso_potrero'] . '/disponibilidad')) ?>" method="post">
-                            <?= csrf_field() ?>
-                            <button class="status <?= $recurso['disponible'] ? 'available' : 'unavailable' ?>" type="submit">
-                                <?= $recurso['disponible'] ? 'Disponible' : 'No disponible' ?>
-                            </button>
-                        </form><?php else: ?><span class="status <?= $recurso['disponible'] ? 'available' : 'unavailable' ?>"><?= $recurso['disponible'] ? 'Disponible' : 'No disponible' ?></span><?php endif; ?>
+                    <article class="resource-item resource-edit">
+                        <?php if (\App\Core\Auth::can('POTRERO_RECURSOS')): ?><form class="resource-form" action="<?= e(url('/potreros/' . $potrero['id_potrero'] . '/recursos/' . $recurso['id_recurso_potrero'] . '/actualizar')) ?>" method="post">
+                            <?= csrf_field() ?><input name="nombre" value="<?= e($recurso['nombre']) ?>" required><input name="observacion" value="<?= e($recurso['observacion']) ?>" placeholder="Observación"><label><input type="checkbox" name="disponible" <?= $recurso['disponible'] ? 'checked' : '' ?>> Disponible</label><button class="button button-secondary" type="submit">Guardar</button><button class="link-danger" formaction="<?= e(url('/potreros/' . $potrero['id_potrero'] . '/recursos/' . $recurso['id_recurso_potrero'] . '/eliminar')) ?>" onclick="return confirm('¿Eliminar este recurso?')">Eliminar</button>
+                        </form><?php else: ?><div><h3><?= e($recurso['nombre']) ?></h3><p><?= e($recurso['observacion'] ?: 'Sin observaciones') ?></p></div><span class="status <?= $recurso['disponible'] ? 'available' : 'unavailable' ?>"><?= $recurso['disponible'] ? 'Disponible' : 'No disponible' ?></span><?php endif; ?>
                     </article>
                 <?php endforeach; ?>
             </div>

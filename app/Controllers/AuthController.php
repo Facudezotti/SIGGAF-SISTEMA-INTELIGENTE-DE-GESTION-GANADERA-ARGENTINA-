@@ -19,6 +19,7 @@ final class AuthController
         }
         View::render('auth/login', [
             'error' => Session::pullFlash('error'),
+            'mensaje' => Session::pullFlash('mensaje'),
             'oldUsuario' => Session::pullFlash('old_usuario', ''),
         ], 'auth');
     }
@@ -54,4 +55,3 @@ final class AuthController
         redirect('/login');
     }
 }
-

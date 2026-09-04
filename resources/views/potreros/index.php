@@ -45,6 +45,7 @@
                         <td class="table-actions">
                             <a href="<?= e(url('/potreros/' . $potrero['id_potrero'])) ?>">Ver</a>
                             <?php if (\App\Core\Auth::can('POTRERO_EDITAR')): ?><a href="<?= e(url('/potreros/' . $potrero['id_potrero'] . '/editar')) ?>">Editar</a><?php endif; ?>
+                            <?php if (\App\Core\Auth::can('POTRERO_ELIMINAR')): ?><form action="<?= e(url('/potreros/' . $potrero['id_potrero'] . '/eliminar')) ?>" method="post" onsubmit="return confirm('Solo podrá eliminarse si no contiene recursos. ¿Continuar?')"><?= csrf_field() ?><button class="link-danger" type="submit">Eliminar</button></form><?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
