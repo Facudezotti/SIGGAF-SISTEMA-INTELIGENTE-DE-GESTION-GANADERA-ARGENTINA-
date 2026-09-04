@@ -18,6 +18,8 @@ Primera entrega funcional del sistema para el establecimiento **La Celina**. Inc
 - Administración de roles, permisos, establecimientos y preguntas de seguridad.
 - Eliminación controlada de potreros y recursos.
 - Diseño adaptable inspirado en la identidad visual de La Celina.
+- Logo global y fondo de acceso personalizables por el dueño.
+- Validación segura de imágenes PNG, JPG/JPEG y WebP de hasta 5 MB.
 
 La recuperación no utiliza correo electrónico en esta entrega. La visualización de potreros en un mapa queda indicada como una función posterior.
 
@@ -26,7 +28,7 @@ La recuperación no utiliza correo electrónico en esta entrega. La visualizaci�
 - PHP 8.1 o posterior.
 - MySQL 8.0 o MariaDB incluida en XAMPP.
 - Apache con `mod_rewrite` habilitado, o el servidor integrado de PHP.
-- Extensiones PHP `pdo_mysql` y `mbstring`.
+- Extensiones PHP `pdo_mysql`, `mbstring` y, preferentemente, `fileinfo`.
 
 En Windows puede utilizarse XAMPP con Apache y MySQL activos.
 
@@ -49,6 +51,16 @@ http://localhost/SIGGAF/public
 ```
 
 Si la carpeta tiene otro nombre, actualizar también `APP_URL` dentro de `.env`.
+
+### Actualizar una instalación existente
+
+Si la base ya fue importada antes de incorporar la personalización visual, no es necesario eliminarla. Importar una sola vez:
+
+```text
+database/actualizacion_personalizacion_visual.sql
+```
+
+Después, iniciar sesión como `DUENO` y acceder a `Apariencia` desde la cabecera o el panel principal.
 
 ## Ejecución con el servidor integrado de PHP
 
@@ -82,6 +94,7 @@ El archivo `database/schema.sql` contiene solamente el modelo relacional necesar
 - `pregunta_seguridad`
 - `respuesta_seguridad_usuario`
 - `usuario_permiso`
+- `configuracion_visual`
 
 Las entidades de animales, movimientos, sanidad, reproducción, costos, compras, ventas, documentación y auditoría se incorporarán en entregas posteriores, cuando sus respectivos módulos sean programados. De esta manera, la base ejecutable no contiene tablas todavía ajenas al alcance desarrollado.
 
@@ -111,6 +124,9 @@ El script `database/seed.php` carga los permisos de potreros, los asigna a los r
 | POST | `/potreros/{id}/recursos` | Agregar recurso | `POTRERO_RECURSOS` |
 | POST | `/potreros/{id}/recursos/{recurso}/disponibilidad` | Cambiar disponibilidad | `POTRERO_RECURSOS` |
 | GET | `/administracion` | Administrar catálogos | `ROL_GESTIONAR` |
+| GET | `/personalizacion` | Configurar logo y fondo | Rol `DUENO` |
+| POST | `/personalizacion/logo` | Reemplazar logo global | Rol `DUENO` |
+| POST | `/personalizacion/fondo` | Reemplazar fondo de acceso | Rol `DUENO` |
 
 ## Seguridad
 

@@ -1,6 +1,12 @@
 <main class="login-shell">
     <section class="login-card" aria-labelledby="recuperar-title">
-        <div class="cattle-mark" aria-hidden="true">♉</div>
+        <img
+            class="brand-logo brand-logo--compact"
+            src="<?= e(url($configuracionVisual['logo_ruta'])) ?>"
+            alt="Logo de SIGGAF"
+            width="450"
+            height="360"
+        >
         <p class="system-name">Recuperación de acceso</p>
         <h1 id="recuperar-title" class="compact-title">Identificar cuenta</h1>
         <?php if (!empty($error)): ?><div class="login-error" role="alert"><?= e($error) ?></div><?php endif; ?>
@@ -16,4 +22,3 @@
         <a class="forgot-button" href="<?= e(url('/login')) ?>">Volver al inicio de sesión</a>
     </section>
 </main>
-

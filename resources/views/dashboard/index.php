@@ -22,6 +22,9 @@
     <?php if ((\App\Core\Auth::user()['rol'] ?? '') === 'DUENO' && \App\Core\Auth::can('ROL_GESTIONAR')): ?>
     <a class="module-card" href="<?= e(url('/administracion')) ?>"><span class="module-icon" aria-hidden="true">⚙</span><div><h2>Configuración</h2><p>Administra roles, permisos, establecimientos y preguntas de seguridad.</p></div></a>
     <?php endif; ?>
+    <?php if ((\App\Core\Auth::user()['rol'] ?? '') === 'DUENO'): ?>
+    <a class="module-card" href="<?= e(url('/personalizacion')) ?>"><span class="module-icon" aria-hidden="true">◩</span><div><h2>Apariencia del sistema</h2><p>Personaliza el logo global y el fondo de las pantallas de acceso.</p></div></a>
+    <?php endif; ?>
     <?php if (!\App\Core\Auth::can('POTRERO_CONSULTAR') && !\App\Core\Auth::can('USUARIO_GESTIONAR')): ?>
         <article class="panel"><p>No tienes módulos operativos habilitados. Consulta con el administrador.</p></article>
     <?php endif; ?>

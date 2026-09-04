@@ -1,5 +1,12 @@
 <main class="login-shell">
     <section class="login-card recovery-card" aria-labelledby="contrasena-title">
+        <img
+            class="brand-logo brand-logo--compact"
+            src="<?= e(url($configuracionVisual['logo_ruta'])) ?>"
+            alt="Logo de SIGGAF"
+            width="450"
+            height="360"
+        >
         <p class="system-name">Recuperación de acceso</p>
         <h1 id="contrasena-title" class="compact-title">Nueva contraseña</h1>
         <p class="recovery-help">Utiliza al menos ocho caracteres.</p>

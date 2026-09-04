@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Services\ConfiguracionVisualService;
+
 final class View
 {
     public static function render(string $view, array $data = [], string $layout = 'app'): void
@@ -16,10 +18,10 @@ final class View
         }
 
         extract($data, EXTR_SKIP);
+        $configuracionVisual = (new ConfiguracionVisualService())->obtener();
         ob_start();
         require $viewFile;
         $content = (string) ob_get_clean();
         require $layoutFile;
     }
 }
-

@@ -1,6 +1,12 @@
 <main class="login-shell">
     <section class="login-card" aria-labelledby="login-title">
-        <div class="cattle-mark" aria-hidden="true">♉</div>
+        <img
+            class="brand-logo"
+            src="<?= e(url($configuracionVisual['logo_ruta'])) ?>"
+            alt="Logo de SIGGAF"
+            width="450"
+            height="360"
+        >
         <p class="system-name">Sistema Inteligente de Gestión Ganadera</p>
         <h1 id="login-title">La Celina</h1>
         <div class="title-divider"><span></span></div>

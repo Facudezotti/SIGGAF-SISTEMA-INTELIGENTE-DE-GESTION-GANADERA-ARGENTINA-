@@ -3,3 +3,5 @@
 /storage/logs/*.log
 /.idea/
 /.vscode/
+/public/uploads/personalizacion/*
+!/public/uploads/personalizacion/.htaccess

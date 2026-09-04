@@ -1,5 +1,12 @@
 <main class="login-shell">
     <section class="login-card recovery-card" aria-labelledby="preguntas-title">
+        <img
+            class="brand-logo brand-logo--compact"
+            src="<?= e(url($configuracionVisual['logo_ruta'])) ?>"
+            alt="Logo de SIGGAF"
+            width="450"
+            height="360"
+        >
         <p class="system-name">Recuperación de acceso</p>
         <h1 id="preguntas-title" class="compact-title">Preguntas de seguridad</h1>
         <p class="recovery-help">Responde las tres preguntas para verificar tu identidad.</p>
@@ -17,4 +24,3 @@
         <a class="forgot-button" href="<?= e(url('/recuperar')) ?>">Comenzar nuevamente</a>
     </section>
 </main>
-

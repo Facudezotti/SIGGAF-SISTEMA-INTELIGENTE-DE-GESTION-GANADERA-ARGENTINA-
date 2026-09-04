@@ -7,9 +7,11 @@
     <link rel="stylesheet" href="<?= e(url('/assets/css/app.css')) ?>">
     <link rel="stylesheet" href="<?= e(url('/assets/css/login.css')) ?>">
 </head>
-<body class="login-page">
+<body
+    class="login-page"
+    style="--login-background-image: url('<?= e(url($configuracionVisual['fondo_ruta'])) ?>')"
+>
     <?= $content ?>
     <script src="<?= e(url('/assets/js/login.js')) ?>" defer></script>
 </body>
 </html>
-

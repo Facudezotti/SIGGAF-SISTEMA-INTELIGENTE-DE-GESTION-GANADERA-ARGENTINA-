@@ -122,7 +122,29 @@ CREATE TABLE respuesta_seguridad_usuario (
 ) ENGINE = InnoDB;
 
 -- ============================================================================
--- 2. ESTABLECIMIENTO, POTREROS Y RECURSOS
+-- 2. CONFIGURACION VISUAL
+-- ============================================================================
+
+CREATE TABLE configuracion_visual (
+    id_configuracion_visual TINYINT UNSIGNED NOT NULL,
+    logo_ruta VARCHAR(500) NOT NULL,
+    logo_nombre_original VARCHAR(255) NULL,
+    logo_mime VARCHAR(100) NULL,
+    fondo_ruta VARCHAR(500) NOT NULL,
+    fondo_nombre_original VARCHAR(255) NULL,
+    fondo_mime VARCHAR(100) NULL,
+    fecha_actualizacion DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    id_usuario_actualizacion BIGINT UNSIGNED NULL,
+    CONSTRAINT pk_configuracion_visual PRIMARY KEY (id_configuracion_visual),
+    CONSTRAINT ck_configuracion_visual_unica CHECK (id_configuracion_visual = 1),
+    CONSTRAINT fk_configuracion_visual_usuario
+        FOREIGN KEY (id_usuario_actualizacion) REFERENCES usuario (id_usuario)
+        ON UPDATE CASCADE ON DELETE SET NULL
+) ENGINE = InnoDB;
+
+-- ============================================================================
+-- 3. ESTABLECIMIENTO, POTREROS Y RECURSOS
 -- ============================================================================
 
 CREATE TABLE establecimiento (
@@ -166,7 +188,7 @@ CREATE TABLE recurso_potrero (
 ) ENGINE = InnoDB;
 
 -- ============================================================================
--- 3. DATOS DE CATALOGO INICIALES
+-- 4. DATOS DE CATALOGO INICIALES
 -- El usuario administrador y el establecimiento se crean con seed.php.
 -- ============================================================================
 
@@ -196,6 +218,16 @@ INSERT INTO pregunta_seguridad (texto, activa) VALUES
     ('¿Cuál era tu apodo durante la infancia?', TRUE),
     ('¿Cuál es el segundo nombre de tu madre?', TRUE),
     ('¿Cuál fue el nombre de tu primera escuela?', TRUE);
+
+INSERT INTO configuracion_visual (
+    id_configuracion_visual,
+    logo_ruta,
+    fondo_ruta
+) VALUES (
+    1,
+    '/assets/img/logo-toro.png',
+    '/assets/img/fondo-ganaderia.jpg'
+);
 
 INSERT INTO rol_permiso (id_rol, id_permiso)
 SELECT r.id_rol, p.id_permiso
