@@ -37,7 +37,7 @@ En Windows puede utilizarse XAMPP con Apache y MySQL activos.
 1. Copiar el proyecto dentro de `C:\\xampp\\htdocs\\SIGGAF`.
 2. Crear localmente un archivo `.env` en la raíz del proyecto. Este archivo no debe subirse al repositorio.
 3. Configurar allí la URL de la aplicación, conexión a MySQL, datos del administrador inicial y las tres respuestas `SEED_SECURITY_ANSWER_1`, `SEED_SECURITY_ANSWER_2` y `SEED_SECURITY_ANSWER_3`.
-4. Abrir phpMyAdmin e importar `database/schema.sql`.
+4. Abrir phpMyAdmin e importar `database/ganaderia.sql`.
 5. Abrir una terminal dentro del proyecto y ejecutar:
 
 ```bash
@@ -80,7 +80,7 @@ Después, acceder a `http://localhost:8000`.
 
 ## Base de datos
 
-El archivo `database/schema.sql` contiene solamente el modelo relacional necesario para los módulos programados en esta primera entrega:
+El archivo `database/ganaderia.sql` contiene solamente el modelo relacional necesario para los módulos programados en esta primera entrega:
 
 - `estado_usuario`
 - `persona`
