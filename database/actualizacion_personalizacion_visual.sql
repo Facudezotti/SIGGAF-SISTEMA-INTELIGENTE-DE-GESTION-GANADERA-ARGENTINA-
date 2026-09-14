@@ -1,10 +1,10 @@
 -- ============================================================================
 -- SIGGAF - ACTUALIZACION PARA PERSONALIZACION VISUAL
--- Ejecutar una sola vez si la base gestion_ganadera ya fue creada anteriormente.
+-- Ejecutar una sola vez si la base ganaderia ya fue creada anteriormente.
 -- Compatible con MySQL 8.0 y MariaDB utilizados por XAMPP.
 -- ============================================================================
 
-USE gestion_ganadera;
+USE ganaderia;
 
 CREATE TABLE IF NOT EXISTS configuracion_visual (
     id_configuracion_visual TINYINT UNSIGNED NOT NULL,
