@@ -16,7 +16,7 @@
 <section class="metric-grid">
     <article class="metric-card"><span>Largo</span><strong><?= e(number_format((float) $potrero['largo'], 2, ',', '.')) ?> m</strong></article>
     <article class="metric-card"><span>Ancho</span><strong><?= e(number_format((float) $potrero['ancho'], 2, ',', '.')) ?> m</strong></article>
-    <article class="metric-card"><span>Superficie</span><strong><?= e(number_format((float) $potrero['superficie'], 2, ',', '.')) ?> m²</strong></article>
+    <article class="metric-card"><span>Superficie</span><strong><?= e(number_format((float) $potrero['superficie'], 4, ',', '.')) ?> ha</strong></article>
 </section>
 
 <section class="two-columns">
