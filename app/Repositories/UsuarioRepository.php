@@ -12,13 +12,12 @@ final class UsuarioRepository
     public function buscarParaAutenticacion(string $nombreUsuario): ?array
     {
         $sql = <<<'SQL'
-            SELECT u.id_usuario, u.nombre_usuario, u.hash_contrasena,
-                   p.nombre, p.apellido, r.nombre AS rol, eu.codigo AS estado
+            SELECT u.id_usuario, u.nombre_usuario, u.contrasena AS hash_contrasena,
+                   u.nombre, u.apellido, r.nombre AS rol, eu.codigo AS estado
             FROM usuario u
-            INNER JOIN persona p ON p.id_persona = u.id_persona
-            INNER JOIN rol r ON r.id_rol = u.id_rol
-            INNER JOIN estado_usuario eu ON eu.id_estado_usuario = u.id_estado_usuario
-            WHERE u.nombre_usuario = :nombre_usuario
+            INNER JOIN rol r ON r.id_rol = u.rol_id
+            INNER JOIN estado_usuario eu ON eu.id_estado_usuario = u.estado_usuario_id
+            WHERE u.nombre_usuario = :nombre_usuario AND u.eliminado_en IS NULL
             LIMIT 1
         SQL;
         $statement = Database::connection()->prepare($sql);
@@ -30,36 +29,37 @@ final class UsuarioRepository
     public function permisos(int $usuarioId): array
     {
         $sql = <<<'SQL'
-            SELECT DISTINCT permisos.nombre
+            SELECT DISTINCT permisos.codigo
             FROM (
-                SELECT pe.nombre
+                SELECT pe.codigo
                 FROM usuario u
-                INNER JOIN rol_permiso rp ON rp.id_rol = u.id_rol
-                INNER JOIN permiso pe ON pe.id_permiso = rp.id_permiso
+                INNER JOIN permiso_rol pr ON pr.rol_id = u.rol_id
+                INNER JOIN permiso pe ON pe.id_permiso = pr.permiso_id
                 WHERE u.id_usuario = :usuario_rol
                 UNION
-                SELECT pe.nombre
+                SELECT pe.codigo
                 FROM usuario_permiso up
                 INNER JOIN permiso pe ON pe.id_permiso = up.id_permiso
                 WHERE up.id_usuario = :usuario_directo
             ) AS permisos
-            ORDER BY permisos.nombre
+            ORDER BY permisos.codigo
         SQL;
         $statement = Database::connection()->prepare($sql);
         $statement->execute(['usuario_rol' => $usuarioId, 'usuario_directo' => $usuarioId]);
-        return array_column($statement->fetchAll(), 'nombre');
+        return array_column($statement->fetchAll(), 'codigo');
     }
 
     public function listar(): array
     {
         $sql = <<<'SQL'
-            SELECT u.id_usuario, u.nombre_usuario, p.nombre, p.apellido, p.correo,
-                   r.nombre AS rol, eu.codigo AS estado
+            SELECT u.id_usuario, u.nombre_usuario, u.nombre, u.apellido, u.correo,
+                   r.nombre AS rol, eu.codigo AS estado, e.nombre AS establecimiento
             FROM usuario u
-            INNER JOIN persona p ON p.id_persona = u.id_persona
-            INNER JOIN rol r ON r.id_rol = u.id_rol
-            INNER JOIN estado_usuario eu ON eu.id_estado_usuario = u.id_estado_usuario
-            ORDER BY p.apellido, p.nombre
+            INNER JOIN rol r ON r.id_rol = u.rol_id
+            INNER JOIN estado_usuario eu ON eu.id_estado_usuario = u.estado_usuario_id
+            INNER JOIN establecimiento e ON e.id_establecimiento = u.establecimiento_id
+            WHERE u.eliminado_en IS NULL
+            ORDER BY u.apellido, u.nombre
         SQL;
         return Database::connection()->query($sql)->fetchAll();
     }
@@ -67,14 +67,15 @@ final class UsuarioRepository
     public function buscar(int $id): ?array
     {
         $sql = <<<'SQL'
-            SELECT u.id_usuario, u.id_persona, u.id_rol, u.id_estado_usuario,
-                   u.nombre_usuario, p.nombre, p.apellido, p.cuil, p.direccion,
-                   p.correo, p.telefono, r.nombre AS rol, eu.codigo AS estado
+            SELECT u.id_usuario, u.rol_id AS id_rol,
+                   u.estado_usuario_id AS id_estado_usuario,
+                   u.establecimiento_id AS id_establecimiento,
+                   u.nombre_usuario, u.nombre, u.apellido, u.cuil, u.direccion,
+                   u.correo, u.telefono, r.nombre AS rol, eu.codigo AS estado
             FROM usuario u
-            INNER JOIN persona p ON p.id_persona = u.id_persona
-            INNER JOIN rol r ON r.id_rol = u.id_rol
-            INNER JOIN estado_usuario eu ON eu.id_estado_usuario = u.id_estado_usuario
-            WHERE u.id_usuario = :id
+            INNER JOIN rol r ON r.id_rol = u.rol_id
+            INNER JOIN estado_usuario eu ON eu.id_estado_usuario = u.estado_usuario_id
+            WHERE u.id_usuario = :id AND u.eliminado_en IS NULL
         SQL;
         $statement = Database::connection()->prepare($sql);
         $statement->execute(['id' => $id]);
@@ -84,27 +85,44 @@ final class UsuarioRepository
 
     public function roles(): array
     {
-        return Database::connection()->query('SELECT id_rol, nombre, descripcion FROM rol ORDER BY nombre')->fetchAll();
+        return Database::connection()->query(
+            'SELECT id_rol, nombre, descripcion FROM rol WHERE eliminado_en IS NULL ORDER BY nombre'
+        )->fetchAll();
     }
 
     public function estados(): array
     {
-        return Database::connection()->query('SELECT id_estado_usuario, codigo, descripcion FROM estado_usuario ORDER BY codigo')->fetchAll();
+        return Database::connection()->query(
+            'SELECT id_estado_usuario, codigo, descripcion FROM estado_usuario ORDER BY codigo'
+        )->fetchAll();
+    }
+
+    public function establecimientos(): array
+    {
+        return Database::connection()->query(
+            'SELECT id_establecimiento, nombre FROM establecimiento WHERE eliminado_en IS NULL ORDER BY nombre'
+        )->fetchAll();
     }
 
     public function catalogoPermisos(): array
     {
-        return Database::connection()->query('SELECT id_permiso, nombre, descripcion FROM permiso ORDER BY nombre')->fetchAll();
+        return Database::connection()->query(
+            'SELECT id_permiso, codigo AS nombre, descripcion FROM permiso ORDER BY codigo'
+        )->fetchAll();
     }
 
     public function preguntasActivas(): array
     {
-        return Database::connection()->query('SELECT id_pregunta_seguridad, texto FROM pregunta_seguridad WHERE activa = TRUE ORDER BY texto')->fetchAll();
+        return Database::connection()->query(
+            'SELECT id_pregunta_seguridad, texto FROM pregunta_seguridad WHERE activa = TRUE ORDER BY texto'
+        )->fetchAll();
     }
 
     public function permisosDirectos(int $usuarioId): array
     {
-        $statement = Database::connection()->prepare('SELECT id_permiso FROM usuario_permiso WHERE id_usuario = :id');
+        $statement = Database::connection()->prepare(
+            'SELECT id_permiso FROM usuario_permiso WHERE id_usuario = :id'
+        );
         $statement->execute(['id' => $usuarioId]);
         return array_map('intval', array_column($statement->fetchAll(), 'id_permiso'));
     }
@@ -142,27 +160,29 @@ final class UsuarioRepository
         $pdo = Database::connection();
         $pdo->beginTransaction();
         try {
-            $persona = $pdo->prepare(<<<'SQL'
-                INSERT INTO persona (nombre, apellido, cuil, direccion, correo, telefono)
-                VALUES (:nombre, :apellido, :cuil, :direccion, :correo, :telefono)
-            SQL);
-            $persona->execute([
-                'nombre' => $datos['nombre'], 'apellido' => $datos['apellido'],
-                'cuil' => $datos['cuil'], 'direccion' => $datos['direccion'],
-                'correo' => $datos['correo'], 'telefono' => $datos['telefono'],
-            ]);
-            $idPersona = (int) $pdo->lastInsertId();
-
             $usuario = $pdo->prepare(<<<'SQL'
-                INSERT INTO usuario (id_persona, id_rol, id_estado_usuario, nombre_usuario, hash_contrasena)
-                VALUES (:id_persona, :id_rol, :id_estado_usuario, :nombre_usuario, :hash_contrasena)
+                INSERT INTO usuario (
+                    cuil, nombre, apellido, telefono, correo, direccion,
+                    nombre_usuario, contrasena, establecimiento_id,
+                    estado_usuario_id, rol_id
+                ) VALUES (
+                    :cuil, :nombre, :apellido, :telefono, :correo, :direccion,
+                    :nombre_usuario, :contrasena, :establecimiento_id,
+                    :estado_usuario_id, :rol_id
+                )
             SQL);
             $usuario->execute([
-                'id_persona' => $idPersona,
-                'id_rol' => $datos['id_rol'],
-                'id_estado_usuario' => $datos['id_estado_usuario'],
+                'cuil' => $datos['cuil'],
+                'nombre' => $datos['nombre'],
+                'apellido' => $datos['apellido'],
+                'telefono' => $datos['telefono'],
+                'correo' => $datos['correo'],
+                'direccion' => $datos['direccion'],
                 'nombre_usuario' => $datos['nombre_usuario'],
-                'hash_contrasena' => password_hash($datos['contrasena'], PASSWORD_DEFAULT),
+                'contrasena' => password_hash($datos['contrasena'], PASSWORD_DEFAULT),
+                'establecimiento_id' => $datos['id_establecimiento'],
+                'estado_usuario_id' => $datos['id_estado_usuario'],
+                'rol_id' => $datos['id_rol'],
             ]);
             $idUsuario = (int) $pdo->lastInsertId();
             $this->sincronizarPermisos($idUsuario, $permisos, $pdo);
@@ -180,27 +200,28 @@ final class UsuarioRepository
         $pdo = Database::connection();
         $pdo->beginTransaction();
         try {
-            $persona = $pdo->prepare(<<<'SQL'
-                UPDATE persona SET nombre = :nombre, apellido = :apellido, cuil = :cuil,
-                    direccion = :direccion, correo = :correo, telefono = :telefono
-                WHERE id_persona = :id_persona
-            SQL);
-            $persona->execute([
-                'nombre' => $datos['nombre'], 'apellido' => $datos['apellido'],
-                'cuil' => $datos['cuil'], 'direccion' => $datos['direccion'],
-                'correo' => $datos['correo'], 'telefono' => $datos['telefono'],
-                'id_persona' => $datos['id_persona'],
-            ]);
-
-            $sql = 'UPDATE usuario SET id_rol = :id_rol, id_estado_usuario = :estado, nombre_usuario = :usuario';
-            $params = ['id_rol' => $datos['id_rol'], 'estado' => $datos['id_estado_usuario'], 'usuario' => $datos['nombre_usuario'], 'id' => $id];
+            $sql = <<<'SQL'
+                UPDATE usuario SET
+                    cuil = :cuil, nombre = :nombre, apellido = :apellido,
+                    telefono = :telefono, correo = :correo, direccion = :direccion,
+                    nombre_usuario = :usuario, establecimiento_id = :establecimiento,
+                    estado_usuario_id = :estado, rol_id = :rol
+            SQL;
+            $params = [
+                'cuil' => $datos['cuil'], 'nombre' => $datos['nombre'],
+                'apellido' => $datos['apellido'], 'telefono' => $datos['telefono'],
+                'correo' => $datos['correo'], 'direccion' => $datos['direccion'],
+                'usuario' => $datos['nombre_usuario'],
+                'establecimiento' => $datos['id_establecimiento'],
+                'estado' => $datos['id_estado_usuario'], 'rol' => $datos['id_rol'],
+                'id' => $id,
+            ];
             if ($datos['contrasena'] !== '') {
-                $sql .= ', hash_contrasena = :hash';
-                $params['hash'] = password_hash($datos['contrasena'], PASSWORD_DEFAULT);
+                $sql .= ', contrasena = :contrasena';
+                $params['contrasena'] = password_hash($datos['contrasena'], PASSWORD_DEFAULT);
             }
             $sql .= ' WHERE id_usuario = :id';
-            $statement = $pdo->prepare($sql);
-            $statement->execute($params);
+            $pdo->prepare($sql)->execute($params);
             $this->sincronizarPermisos($id, $permisos, $pdo);
             if ($respuestas !== []) {
                 $this->reemplazarRespuestas($id, $respuestas, $pdo);
@@ -216,35 +237,43 @@ final class UsuarioRepository
     {
         $sql = <<<'SQL'
             UPDATE usuario
-            SET id_estado_usuario = (SELECT id_estado_usuario FROM estado_usuario WHERE codigo = 'INACTIVO')
+            SET estado_usuario_id = (
+                SELECT id_estado_usuario FROM estado_usuario WHERE codigo = 'INACTIVO'
+            )
             WHERE id_usuario = :id
         SQL;
-        $statement = Database::connection()->prepare($sql);
-        $statement->execute(['id' => $id]);
+        Database::connection()->prepare($sql)->execute(['id' => $id]);
     }
 
     public function cantidadDuenosActivos(): int
     {
         $sql = <<<'SQL'
             SELECT COUNT(*) FROM usuario u
-            INNER JOIN rol r ON r.id_rol = u.id_rol
-            INNER JOIN estado_usuario eu ON eu.id_estado_usuario = u.id_estado_usuario
-            WHERE r.nombre = 'DUENO' AND eu.codigo = 'ACTIVO'
+            INNER JOIN rol r ON r.id_rol = u.rol_id
+            INNER JOIN estado_usuario eu ON eu.id_estado_usuario = u.estado_usuario_id
+            WHERE r.codigo = 'DUENO' AND eu.codigo = 'ACTIVO' AND u.eliminado_en IS NULL
         SQL;
         return (int) Database::connection()->query($sql)->fetchColumn();
     }
 
     public function actualizarContrasena(int $id, string $contrasena): void
     {
-        $statement = Database::connection()->prepare('UPDATE usuario SET hash_contrasena = :hash WHERE id_usuario = :id');
-        $statement->execute(['hash' => password_hash($contrasena, PASSWORD_DEFAULT), 'id' => $id]);
+        $statement = Database::connection()->prepare(
+            'UPDATE usuario SET contrasena = :hash WHERE id_usuario = :id'
+        );
+        $statement->execute([
+            'hash' => password_hash($contrasena, PASSWORD_DEFAULT),
+            'id' => $id,
+        ]);
     }
 
     private function sincronizarPermisos(int $usuarioId, array $permisos, PDO $pdo): void
     {
-        $delete = $pdo->prepare('DELETE FROM usuario_permiso WHERE id_usuario = :id');
-        $delete->execute(['id' => $usuarioId]);
-        $insert = $pdo->prepare('INSERT INTO usuario_permiso (id_usuario, id_permiso) VALUES (:usuario, :permiso)');
+        $pdo->prepare('DELETE FROM usuario_permiso WHERE id_usuario = :id')
+            ->execute(['id' => $usuarioId]);
+        $insert = $pdo->prepare(
+            'INSERT INTO usuario_permiso (id_usuario, id_permiso) VALUES (:usuario, :permiso)'
+        );
         foreach (array_unique(array_map('intval', $permisos)) as $permisoId) {
             if ($permisoId > 0) {
                 $insert->execute(['usuario' => $usuarioId, 'permiso' => $permisoId]);
@@ -254,17 +283,21 @@ final class UsuarioRepository
 
     private function reemplazarRespuestas(int $usuarioId, array $respuestas, PDO $pdo): void
     {
-        $delete = $pdo->prepare('DELETE FROM respuesta_seguridad_usuario WHERE id_usuario = :id');
-        $delete->execute(['id' => $usuarioId]);
+        $pdo->prepare('DELETE FROM respuesta_seguridad_usuario WHERE id_usuario = :id')
+            ->execute(['id' => $usuarioId]);
         $insert = $pdo->prepare(<<<'SQL'
-            INSERT INTO respuesta_seguridad_usuario (id_usuario, id_pregunta_seguridad, hash_respuesta)
+            INSERT INTO respuesta_seguridad_usuario
+                (id_usuario, id_pregunta_seguridad, hash_respuesta)
             VALUES (:usuario, :pregunta, :respuesta)
         SQL);
         foreach ($respuestas as $respuesta) {
             $insert->execute([
                 'usuario' => $usuarioId,
                 'pregunta' => $respuesta['id_pregunta_seguridad'],
-                'respuesta' => password_hash($respuesta['respuesta_normalizada'], PASSWORD_DEFAULT),
+                'respuesta' => password_hash(
+                    $respuesta['respuesta_normalizada'],
+                    PASSWORD_DEFAULT
+                ),
             ]);
         }
     }
