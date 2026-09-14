@@ -6,8 +6,6 @@
 -- Se anexan funciones implementadas previamente por SIGGAF:
 -- preguntas de seguridad, permisos individuales, personalizacion
 -- visual y dimensiones/disponibilidad de recursos.
---
--- ATENCION: elimina y reconstruye la base ganaderia.
 -- ============================================================
 
 SET @OLD_UNIQUE_CHECKS = @@UNIQUE_CHECKS;
