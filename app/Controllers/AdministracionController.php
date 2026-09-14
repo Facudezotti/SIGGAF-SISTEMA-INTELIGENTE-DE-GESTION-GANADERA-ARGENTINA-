@@ -110,15 +110,30 @@ final class AdministracionController
     private function establecimiento(?int $id): void
     {
         $this->validarCsrf();
-        $nombre = trim((string) ($_POST['nombre'] ?? ''));
-        $descripcion = $this->textoOpcional($_POST['descripcion'] ?? null);
-        if ($nombre === '' || mb_strlen($nombre) > 150) $this->fallar('El nombre del establecimiento es obligatorio.');
+        $datos = [
+            'nombre' => trim((string) ($_POST['nombre'] ?? '')),
+            'descripcion' => $this->textoOpcional($_POST['descripcion'] ?? null),
+            'localidad' => trim((string) ($_POST['localidad'] ?? '')),
+            'provincia' => trim((string) ($_POST['provincia'] ?? '')),
+            'superficie' => (float) ($_POST['superficie'] ?? 0),
+            'observaciones' => $this->textoOpcional($_POST['observaciones'] ?? null),
+        ];
+        if ($datos['nombre'] === '' || mb_strlen($datos['nombre']) > 100) {
+            $this->fallar('El nombre del establecimiento es obligatorio.');
+        }
+        if ($datos['localidad'] === '' || $datos['provincia'] === '') {
+            $this->fallar('La localidad y la provincia son obligatorias.');
+        }
+        if ($datos['superficie'] <= 0) {
+            $this->fallar('La superficie debe ser mayor que cero.');
+        }
         $this->ejecutar(
-            function () use ($id, $nombre, $descripcion): void {
-                if ($id === null) $this->repository->crearEstablecimiento($nombre, $descripcion);
-                else $this->repository->actualizarEstablecimiento($id, $nombre, $descripcion);
+            function () use ($id, $datos): void {
+                if ($id === null) $this->repository->crearEstablecimiento($datos);
+                else $this->repository->actualizarEstablecimiento($id, $datos);
             },
-            'Establecimiento guardado correctamente.', 'No se pudo guardar el establecimiento. Verifica que el nombre no esté repetido.'
+            'Establecimiento guardado correctamente.',
+            'No se pudo guardar el establecimiento. Verifica los datos ingresados.'
         );
     }
 
