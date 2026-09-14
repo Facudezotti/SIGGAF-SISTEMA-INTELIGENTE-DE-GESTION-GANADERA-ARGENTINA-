@@ -39,7 +39,7 @@ final class AdministracionRepository
         $pdo = Database::connection();
         $pdo->beginTransaction();
         try {
-            $statement = $pdo->prepare('INSERT INTO rol (codigo, nombre, descripcion) VALUES (:nombre, :nombre, :descripcion)');
+            $statement = $pdo->prepare('INSERT INTO rol (codigo, nombre, descripcion) VALUES (:codigo, :nombre, :descripcion)');
             $statement->execute(['nombre' => $nombre, 'descripcion' => $descripcion]);
             $this->sincronizarPermisosRol((int) $pdo->lastInsertId(), $permisos);
             $pdo->commit();
@@ -51,8 +51,8 @@ final class AdministracionRepository
         $pdo = Database::connection();
         $pdo->beginTransaction();
         try {
-            $statement = $pdo->prepare('UPDATE rol SET codigo = :nombre, nombre = :nombre, descripcion = :descripcion WHERE id_rol = :id');
-            $statement->execute(['nombre' => $nombre, 'descripcion' => $descripcion, 'id' => $id]);
+            $statement = $pdo->prepare('UPDATE rol SET codigo = :codigo, nombre = :nombre, descripcion = :descripcion WHERE id_rol = :id');
+            $statement->execute(['codigo' => $nombre, 'nombre' => $nombre, 'descripcion' => $descripcion, 'id' => $id]);
             $this->sincronizarPermisosRol($id, $permisos);
             $pdo->commit();
         } catch (\Throwable $e) { $pdo->rollBack(); throw $e; }
@@ -66,14 +66,14 @@ final class AdministracionRepository
 
     public function crearPermiso(string $nombre, ?string $descripcion): void
     {
-        $statement = Database::connection()->prepare('INSERT INTO permiso (codigo, nombre, descripcion) VALUES (:nombre, :nombre, :descripcion)');
-        $statement->execute(compact('nombre', 'descripcion'));
+        $statement = Database::connection()->prepare('INSERT INTO permiso (codigo, nombre, descripcion) VALUES (:codigo, :nombre, :descripcion)');
+        $statement->execute(['codigo' => $nombre, 'nombre' => $nombre, 'descripcion' => $descripcion]);
     }
 
     public function actualizarPermiso(int $id, string $nombre, ?string $descripcion): void
     {
-        $statement = Database::connection()->prepare('UPDATE permiso SET codigo = :nombre, nombre = :nombre, descripcion = :descripcion WHERE id_permiso = :id');
-        $statement->execute(['nombre' => $nombre, 'descripcion' => $descripcion, 'id' => $id]);
+        $statement = Database::connection()->prepare('UPDATE permiso SET codigo = :codigo, nombre = :nombre, descripcion = :descripcion WHERE id_permiso = :id');
+        $statement->execute(['codigo' => $nombre, 'nombre' => $nombre, 'descripcion' => $descripcion, 'id' => $id]);
     }
 
     public function eliminarPermiso(int $id): void
