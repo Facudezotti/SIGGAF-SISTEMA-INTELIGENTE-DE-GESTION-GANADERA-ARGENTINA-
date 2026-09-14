@@ -40,7 +40,7 @@ final class PotreroService
                 'nombre' => $nombre,
                 'largo' => round((float) ($largo ?: 0), 2),
                 'ancho' => round((float) ($ancho ?: 0), 2),
-                'superficie' => round((float) ($largo ?: 0) * (float) ($ancho ?: 0), 2),
+                'superficie' => round(((float) ($largo ?: 0) * (float) ($ancho ?: 0)) / 10000, 4),
             ],
         ];
     }
