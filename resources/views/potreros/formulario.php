@@ -42,8 +42,8 @@
     </label>
 
     <div class="surface-preview field-wide">
-        <span>Superficie calculada</span>
-        <strong id="superficie-calculada"><?= e(number_format((float) ($potrero['superficie'] ?? 0), 2, ',', '.')) ?> m²</strong>
+        <span>Superficie calculada en hectáreas</span>
+        <strong id="superficie-calculada"><?= e(number_format((float) ($potrero['superficie'] ?? 0), 4, ',', '.')) ?> ha</strong>
     </div>
 
     <div class="form-actions field-wide">
