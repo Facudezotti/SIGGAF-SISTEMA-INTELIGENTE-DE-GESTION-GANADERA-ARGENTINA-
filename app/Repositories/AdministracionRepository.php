@@ -11,7 +11,7 @@ final class AdministracionRepository
     public function roles(): array
     {
         $roles = Database::connection()->query('SELECT * FROM rol ORDER BY nombre')->fetchAll();
-        $statement = Database::connection()->prepare('SELECT id_permiso FROM rol_permiso WHERE id_rol = :id');
+        $statement = Database::connection()->prepare('SELECT permiso_id AS id_permiso FROM permiso_rol WHERE rol_id = :id');
         foreach ($roles as &$rol) {
             $statement->execute(['id' => $rol['id_rol']]);
             $rol['permisos'] = array_map('intval', array_column($statement->fetchAll(), 'id_permiso'));
@@ -39,7 +39,7 @@ final class AdministracionRepository
         $pdo = Database::connection();
         $pdo->beginTransaction();
         try {
-            $statement = $pdo->prepare('INSERT INTO rol (nombre, descripcion) VALUES (:nombre, :descripcion)');
+            $statement = $pdo->prepare('INSERT INTO rol (codigo, nombre, descripcion) VALUES (:nombre, :nombre, :descripcion)');
             $statement->execute(['nombre' => $nombre, 'descripcion' => $descripcion]);
             $this->sincronizarPermisosRol((int) $pdo->lastInsertId(), $permisos);
             $pdo->commit();
@@ -51,7 +51,7 @@ final class AdministracionRepository
         $pdo = Database::connection();
         $pdo->beginTransaction();
         try {
-            $statement = $pdo->prepare('UPDATE rol SET nombre = :nombre, descripcion = :descripcion WHERE id_rol = :id');
+            $statement = $pdo->prepare('UPDATE rol SET codigo = :nombre, nombre = :nombre, descripcion = :descripcion WHERE id_rol = :id');
             $statement->execute(['nombre' => $nombre, 'descripcion' => $descripcion, 'id' => $id]);
             $this->sincronizarPermisosRol($id, $permisos);
             $pdo->commit();
@@ -66,13 +66,13 @@ final class AdministracionRepository
 
     public function crearPermiso(string $nombre, ?string $descripcion): void
     {
-        $statement = Database::connection()->prepare('INSERT INTO permiso (nombre, descripcion) VALUES (:nombre, :descripcion)');
+        $statement = Database::connection()->prepare('INSERT INTO permiso (codigo, nombre, descripcion) VALUES (:nombre, :nombre, :descripcion)');
         $statement->execute(compact('nombre', 'descripcion'));
     }
 
     public function actualizarPermiso(int $id, string $nombre, ?string $descripcion): void
     {
-        $statement = Database::connection()->prepare('UPDATE permiso SET nombre = :nombre, descripcion = :descripcion WHERE id_permiso = :id');
+        $statement = Database::connection()->prepare('UPDATE permiso SET codigo = :nombre, nombre = :nombre, descripcion = :descripcion WHERE id_permiso = :id');
         $statement->execute(['nombre' => $nombre, 'descripcion' => $descripcion, 'id' => $id]);
     }
 
@@ -82,16 +82,24 @@ final class AdministracionRepository
         $statement->execute(['id' => $id]);
     }
 
-    public function crearEstablecimiento(string $nombre, ?string $descripcion): void
+    public function crearEstablecimiento(array $datos): void
     {
-        $statement = Database::connection()->prepare('INSERT INTO establecimiento (nombre, descripcion) VALUES (:nombre, :descripcion)');
-        $statement->execute(compact('nombre', 'descripcion'));
+        $statement = Database::connection()->prepare(
+            'INSERT INTO establecimiento (nombre, descripcion, localidad, provincia, superficie, observaciones)
+             VALUES (:nombre, :descripcion, :localidad, :provincia, :superficie, :observaciones)'
+        );
+        $statement->execute($datos);
     }
 
-    public function actualizarEstablecimiento(int $id, string $nombre, ?string $descripcion): void
+    public function actualizarEstablecimiento(int $id, array $datos): void
     {
-        $statement = Database::connection()->prepare('UPDATE establecimiento SET nombre = :nombre, descripcion = :descripcion WHERE id_establecimiento = :id');
-        $statement->execute(['nombre' => $nombre, 'descripcion' => $descripcion, 'id' => $id]);
+        $datos['id'] = $id;
+        $statement = Database::connection()->prepare(
+            'UPDATE establecimiento SET nombre = :nombre, descripcion = :descripcion,
+             localidad = :localidad, provincia = :provincia, superficie = :superficie,
+             observaciones = :observaciones WHERE id_establecimiento = :id'
+        );
+        $statement->execute($datos);
     }
 
     public function eliminarEstablecimiento(int $id): void
@@ -121,9 +129,9 @@ final class AdministracionRepository
     private function sincronizarPermisosRol(int $rolId, array $permisos): void
     {
         $pdo = Database::connection();
-        $delete = $pdo->prepare('DELETE FROM rol_permiso WHERE id_rol = :id');
+        $delete = $pdo->prepare('DELETE FROM permiso_rol WHERE rol_id = :id');
         $delete->execute(['id' => $rolId]);
-        $insert = $pdo->prepare('INSERT INTO rol_permiso (id_rol, id_permiso) VALUES (:rol, :permiso)');
+        $insert = $pdo->prepare('INSERT INTO permiso_rol (rol_id, permiso_id) VALUES (:rol, :permiso)');
         foreach (array_unique(array_map('intval', $permisos)) as $permisoId) {
             if ($permisoId > 0) $insert->execute(['rol' => $rolId, 'permiso' => $permisoId]);
         }
