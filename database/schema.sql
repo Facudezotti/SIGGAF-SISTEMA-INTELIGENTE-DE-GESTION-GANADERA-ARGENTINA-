@@ -86,6 +86,7 @@ CREATE TABLE usuario (
   apellido VARCHAR(100) NOT NULL,
   telefono VARCHAR(30) NULL,
   correo VARCHAR(150) NULL,
+  direccion VARCHAR(255) NULL COMMENT 'Direccion principal anexada para el modulo actual',
   nombre_usuario VARCHAR(80) NOT NULL,
   contrasena VARCHAR(255) NOT NULL COMMENT 'Guardar hash, nunca texto plano',
   establecimiento_id BIGINT UNSIGNED NOT NULL,
