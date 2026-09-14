@@ -24,8 +24,35 @@
 
 <section class="admin-section panel">
     <div class="panel-heading"><h2>Establecimientos</h2></div>
-    <form class="inline-create" action="<?= e(url('/administracion/establecimientos')) ?>" method="post"><?= csrf_field() ?><input name="nombre" placeholder="Nombre" maxlength="150" required><input name="descripcion" placeholder="Descripción"><button class="button button-primary" type="submit">Agregar</button></form>
-    <div class="admin-cards two-card-columns"><?php foreach ($establecimientos as $establecimiento): ?><form class="admin-card" action="<?= e(url('/administracion/establecimientos/' . $establecimiento['id_establecimiento'])) ?>" method="post"><?= csrf_field() ?><div class="admin-fields"><input name="nombre" value="<?= e($establecimiento['nombre']) ?>" required><input name="descripcion" value="<?= e($establecimiento['descripcion']) ?>"></div><div class="admin-actions"><button class="button button-secondary" type="submit">Guardar</button><button class="link-danger" formaction="<?= e(url('/administracion/establecimientos/' . $establecimiento['id_establecimiento'] . '/eliminar')) ?>" onclick="return confirm('Solo puede eliminarse si no contiene potreros. ¿Continuar?')">Eliminar</button></div></form><?php endforeach; ?></div>
+    <form class="panel form-grid" action="<?= e(url('/administracion/establecimientos')) ?>" method="post">
+        <?= csrf_field() ?>
+        <label class="field"><span>Nombre</span><input name="nombre" maxlength="100" required></label>
+        <label class="field"><span>Localidad</span><input name="localidad" maxlength="100" required></label>
+        <label class="field"><span>Provincia</span><input name="provincia" maxlength="100" required></label>
+        <label class="field"><span>Superficie (ha)</span><input type="number" name="superficie" min="0.01" step="0.01" required></label>
+        <label class="field field-wide"><span>Descripción</span><input name="descripcion"></label>
+        <label class="field field-wide"><span>Observaciones</span><textarea name="observaciones"></textarea></label>
+        <button class="button button-primary" type="submit">Agregar establecimiento</button>
+    </form>
+    <div class="admin-cards">
+        <?php foreach ($establecimientos as $establecimiento): ?>
+            <form class="admin-card" action="<?= e(url('/administracion/establecimientos/' . $establecimiento['id_establecimiento'])) ?>" method="post">
+                <?= csrf_field() ?>
+                <div class="admin-fields">
+                    <input name="nombre" value="<?= e($establecimiento['nombre']) ?>" placeholder="Nombre" required>
+                    <input name="localidad" value="<?= e($establecimiento['localidad']) ?>" placeholder="Localidad" required>
+                    <input name="provincia" value="<?= e($establecimiento['provincia']) ?>" placeholder="Provincia" required>
+                    <input type="number" name="superficie" min="0.01" step="0.01" value="<?= e($establecimiento['superficie']) ?>" placeholder="Superficie (ha)" required>
+                    <input name="descripcion" value="<?= e($establecimiento['descripcion']) ?>" placeholder="Descripción">
+                    <input name="observaciones" value="<?= e($establecimiento['observaciones']) ?>" placeholder="Observaciones">
+                </div>
+                <div class="admin-actions">
+                    <button class="button button-secondary" type="submit">Guardar</button>
+                    <button class="link-danger" formaction="<?= e(url('/administracion/establecimientos/' . $establecimiento['id_establecimiento'] . '/eliminar')) ?>" onclick="return confirm('Solo puede eliminarse si no contiene registros relacionados. ¿Continuar?')">Eliminar</button>
+                </div>
+            </form>
+        <?php endforeach; ?>
+    </div>
 </section>
 
 <section class="admin-section panel">
