@@ -194,7 +194,7 @@ CREATE TABLE potrero (
   establecimiento_id BIGINT UNSIGNED NOT NULL,
   codigo VARCHAR(30) NULL,
   nombre VARCHAR(100) NOT NULL,
-  superficie DECIMAL(12,2) NULL COMMENT 'Superficie expresada en metros cuadrados',
+  superficie DECIMAL(12,2) NULL COMMENT 'Superficie expresada en hectareas',
   descripcion VARCHAR(255) NULL,
   largo DECIMAL(10,2) NULL COMMENT 'Dimension anexada, expresada en metros',
   ancho DECIMAL(10,2) NULL COMMENT 'Dimension anexada, expresada en metros',
