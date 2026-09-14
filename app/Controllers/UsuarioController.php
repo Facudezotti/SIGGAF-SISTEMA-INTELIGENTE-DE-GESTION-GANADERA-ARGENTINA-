@@ -73,7 +73,6 @@ final class UsuarioController
     {
         $this->validarCsrf();
         $usuario = $this->obtener($id);
-        $_POST['id_persona'] = $usuario['id_persona'];
         $resultado = (new UsuarioService())->validar($_POST, (int) $id, true);
         if ((int) $id === (int) (Auth::user()['id_usuario'] ?? 0)
             && ((int) $usuario['id_rol'] !== $resultado['datos']['id_rol'] || (int) $usuario['id_estado_usuario'] !== $resultado['datos']['id_estado_usuario'])) {
@@ -116,7 +115,9 @@ final class UsuarioController
     {
         View::render('usuarios/formulario', [
             'titulo' => $titulo, 'accion' => $accion, 'usuario' => $usuario,
-            'roles' => array_values(array_filter($this->repository->roles(), static fn (array $rol): bool => $edicion || $rol['nombre'] !== 'DUENO')), 'estados' => $this->repository->estados(),
+            'roles' => array_values(array_filter($this->repository->roles(), static fn (array $rol): bool => $edicion || $rol['nombre'] !== 'DUENO')),
+            'estados' => $this->repository->estados(),
+            'establecimientos' => $this->repository->establecimientos(),
             'permisos' => $this->repository->catalogoPermisos(),
             'permisosSeleccionados' => array_map('intval', (array) ($usuario['permisos'] ?? $permisosSeleccionados)),
             'preguntas' => $this->repository->preguntasActivas(),
