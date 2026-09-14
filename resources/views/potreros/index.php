@@ -40,7 +40,7 @@
                         <td><?= e($potrero['establecimiento']) ?></td>
                         <td><?= e(number_format((float) $potrero['largo'], 2, ',', '.')) ?> m</td>
                         <td><?= e(number_format((float) $potrero['ancho'], 2, ',', '.')) ?> m</td>
-                        <td><?= e(number_format((float) $potrero['superficie'], 2, ',', '.')) ?> m²</td>
+                        <td><?= e(number_format((float) $potrero['superficie'], 4, ',', '.')) ?> ha</td>
                         <td><?= e($potrero['cantidad_recursos']) ?></td>
                         <td class="table-actions">
                             <a href="<?= e(url('/potreros/' . $potrero['id_potrero'])) ?>">Ver</a>
